@@ -13,7 +13,7 @@
 - TB3: [HTTP REST API + Flask + SQL + GUI] 로봇 경로 탐색 통합 관제 UI
 - PyQt+MySQL: [DB + GUI] 삼성 스마트폰 재고관리 프로그램
 - Arduino+UDP: [Arduino + UDP + GUI] 자율주행자동차 보조안전모듈[발표회]
-- 
+  
 ---
 
 ## 기술 블로그 정리
