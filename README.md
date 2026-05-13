@@ -349,16 +349,12 @@ TurtleBot3 Waffle Pi + ROS2 Humble 환경에서 미세먼지 센서(ESP01 + PMS7
 
 ### 팀 구성 및 본인 역할
 
-4명 (팀 PURE) / **ROS2 자율주행 제어 + Spring Boot 웹 대시보드 전체 담당**
-- A* 경로 탐색 알고리즘 구현 (Safety Cost Map 적용)
-- Pure Pursuit 경로 추종 컨트롤러 구현
-- FSM 상태 머신 설계 (IDLE → GO_TO_ZONE → CLEANING → RETURN → IDLE)
-- ArUco 마커(DICT_4X4_50, ID 0) 기반 정밀 홈 도킹 구현
-- MQTT ↔ ROS2 양방향 브리지 노드 구현
-- 먼지 히트맵 매핑 (PM10 + 로봇 위치 융합)
-- Spring Boot 웹 서버 전체 구현 (REST API, MQTT 연동, Thymeleaf 대시보드)
-- 3D ROS 시각화 대시보드 (ROS3D.js + Three.js)
-- 맵 클릭 네비게이션, 순찰 모드, 원격 제어 기능
+4명 (팀 PURE) / **프로젝트 기획 + 센서 연동 + 자동 출동 로직 + PPT/영상 제작**
+- 프로젝트 전체 기획 및 구조 설계
+- A* + Pure Pursuit 주행 제어 구현
+- Arduino, ESP-01, PMS7003 센서 연동 + MQTT 통신 구축
+- 미세먼지 기반 자동 출동 로직 구현 (FSM: IDLE → GO_TO_ZONE → CLEANING → RETURN)
+- PPT 제작 및 시연 영상 촬영/편집
 
 ### 시스템 구성
 
