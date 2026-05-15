@@ -457,6 +457,7 @@ HTML, CSS, JavaScript 기본 문법부터 DOM/이벤트 처리, 그리고 ROS와
 | todo/ | JS DOM 조작 + 이벤트 핸들링 기반 TODO 추가/삭제 웹 앱 |
 | web_robot/ | roslibjs로 rosbridge에 연결, /turtle1/cmd_vel 발행해 turtlesim 원격 조종 |
 | web_robot2/ | ros2djs OccupancyGridClient로 /map 토픽 구독, 실시간 SLAM 지도 시각화 |
+| flask_web_app/ | Flask + SQLAlchemy 기반 TODO REST API 서버 (POST/GET/PUT/DELETE 4개 엔드포인트, MySQL 연동) |
 
 ### 기능적 요소
 
@@ -475,6 +476,12 @@ HTML, CSS, JavaScript 기본 문법부터 DOM/이벤트 처리, 그리고 ROS와
 - OccupancyGridClient로 /map 토픽 자동 구독 및 EaselJS 캔버스에 실시간 렌더링
 - 맵 갱신 시 viewer scale/shift 자동 조정으로 전체 맵이 화면에 맞도록 처리
 
+**Flask + MySQL CRUD API**
+- python_app.py: 단일 라우트로 텍스트 응답하는 Flask 최소 서버 (학습 시작점)
+- TDLS.py: 파이썬 리스트를 임시 DB로 사용해 /todos 4개 HTTP 메소드(POST/GET/PUT/DELETE) 구현
+- 02-todo_db.py: SQLAlchemy ORM + PyMySQL로 MySQL example DB 연동, todos 테이블 자동 생성(db.create_all()), Flask-CORS로 브라우저 직접 호출 허용
+- MySQL Workbench로 example 데이터베이스,todos 테이블 생성 후 POSTMAN으로 4개 엔드포인트 동작 검증
+
 ### 활용 기술 및 도구
 
 | 구분 | 내용 |
@@ -483,6 +490,7 @@ HTML, CSS, JavaScript 기본 문법부터 DOM/이벤트 처리, 그리고 ROS와
 | **스크립트** | Vanilla JavaScript (ES6+), DOM API, setInterval, addEventListener |
 | **ROS 웹 라이브러리** | roslibjs, ros2djs, EaselJS, EventEmitter2 |
 | **ROS** | ROS2 Humble, rosbridge_server, turtlesim, turtlebot3_cartographer |
+| **백엔드/DB** | Flask, Flask-SQLAlchemy, Flask-CORS, PyMySQL, MySQL Workbench, POSTMAN |
 | **개발 도구** | VS Code, Chrome DevTools, CDN(jsDelivr) |
 
 ### 프로젝트 주요 성과
@@ -541,5 +549,6 @@ R2/
     ├── todo/
     ├── roboclub/
     ├── web_robot/
-    └── web_robot2/
+    ├── web_robot2/
+    └── flask_web_app/
 ```
