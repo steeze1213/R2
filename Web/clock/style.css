@@ -1,0 +1,83 @@
+/* 7-세그먼트 LCD 스타일 시계의 시각적 디자인 */
+
+/* DSEG7 Classic 폰트를 CDN에서 직접 로드 — 숫자/콜론만 7-세그먼트 모양으로 렌더링 */
+@font-face {
+    font-family: 'DSEG7Classic';
+    src: url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Bold.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.clock-card {
+    width: 520px;
+    max-width: 92vw;
+    height: 220px;
+    background-color: #000000;
+    border: 1px solid #555;
+    border-radius: 16px;
+    padding: 32px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.clock-row {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    /* DSEG7Classic을 먼저 적용해 숫자/콜론은 7-세그먼트로,
+       한글(년/월/일)은 DSEG에 없으므로 Noto Sans KR로 자동 폴백 */
+    font-family: 'DSEG7Classic', 'Noto Sans KR', sans-serif;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+
+}
+
+.date-row {
+    font-size: 44px;
+}
+
+.time-row {
+    font-size: 64px;
+}
+
+/* 꺼진 세그먼트 잔상: ghost와 active를 같은 위치에 겹쳐서
+   실제 LCD에서 안 켜진 8자 모양이 비치는 느낌을 재현 */
+.ghost,
+.active {
+    display: inline-block;
+}
+
+.ghost {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: rgba(255, 255, 255, 0.08);
+    text-shadow: none;
+    z-index: 1;
+}
+
+.active {
+    position: relative;
+    z-index: 2;
+}

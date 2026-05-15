@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>로봇 조종하기</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+</head>
+
+<body>
+
+  <main class="hud-frame">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <h1>웹 컨트롤러</h1>
+
+    <p class="status-line">
+      <span class="status-led" id="status-led"></span>
+      <span class="status-label">상태:</span>
+      <span id="status">연결 중...</span>
+    </p>
+
+    <hr/>
+
+    <div class="controller">
+      <div class="empty"></div>
+      <button id="btn-forward">UP</button>
+      <div class="empty"></div>
+
+      <button id="btn-left">LEFT</button>
+      <button id="btn-stop">STOP</button>
+      <button id="btn-right">RIGHT</button>
+
+      <div class="empty"></div>
+      <button id="btn-back">DOWN</button>
+      <div class="empty"></div>
+    </div>
+  </main>
+
+  <script src="controller.js"></script>
+</body>
+</html>

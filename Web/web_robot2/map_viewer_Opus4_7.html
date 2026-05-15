@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TurtleBot3 Dashboard</title>
+
+<script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/eventemitter2@6.4.9/lib/eventemitter2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ros2d@0.9.0/build/ros2d.min.js"></script>
+
+<style>
+  :root {
+    --bg-page: #EEF2F0;
+    --bg-card: #FFFFFF;
+    --border-card: #D8DCD9;
+    --text-primary: #1D1D1F;
+    --text-muted: #6E6E73;
+
+    --accent-green: #6BBF8A;
+    --accent-green-bg: #E8F5EE;
+
+    --band-telemetry: #A8D5BA;
+    --band-control:   #B5D5EC;
+    --band-guide:     #E8D5B5;
+    --band-map:       #C9B6E4;
+
+    --bar-linear:  #6BBF8A;
+    --bar-angular: #A78BC9;
+    --bar-negative:#E8A5A5;
+
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  }
+
+  html, body {
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+  }
+  body {
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard",
+                 "Noto Sans KR", Roboto, sans-serif;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .header {
+    flex: 0 0 auto;
+    height: 68px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-card);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+  }
+  .header-left .title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .header-left .subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .conn-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border-card);
+    background: var(--accent-green-bg);
+    color: #2D7A4F;
+    border-color: var(--accent-green);
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .conn-chip.disconnected {
+    background: #FBEEEE;
+    border-color: #E8A5A5;
+    color: #B04040;
+  }
+  .conn-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent-green);
+    animation: breathe 2s ease-in-out infinite;
+  }
+  .conn-chip.disconnected .conn-dot {
+    background: #D67A7A;
+    animation: none;
+  }
+  @keyframes breathe {
+    0%,100% { transform: scale(1);   opacity: 1; }
+    50%     { transform: scale(1.2); opacity: 0.7; }
+  }
+  .clock {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+  .uptime {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 16px;
+    padding: 16px;
+    min-height: 0;
+  }
+  .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .card-band {
+    flex: 0 0 auto;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    color: #1D1D1F;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .card-band .topic {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.7;
+  }
+  .card-body {
+    flex: 1;
+    padding: 14px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-map .card-band  { background: var(--band-map); }
+  .card-map .card-body  { padding: 0; position: relative; }
+  #map {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: #F4F4F2;
+    min-height: 0;
+  }
+  #map canvas { display: block; }
+
+  .map-overlay {
+    position: absolute;
+    pointer-events: none;
+  }
+  .coord-box {
+    top: 12px; left: 12px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid var(--border-card);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+  .coord-box .label { color: var(--text-muted); margin-right: 6px; }
+
+  .zoom-controls {
+    top: 12px; right: 12px;
+    display: flex;
+    gap: 6px;
+    pointer-events: auto;
+  }
+  .zoom-btn {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border-card);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease;
+  }
+  .zoom-btn:hover { background: var(--accent-green-bg); }
+  .zoom-btn:active { transform: scale(0.96); }
+
+  .compass {
+    bottom: 12px; right: 12px;
+    width: 72px; height: 72px;
+  }
+
+  .map-waiting {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    background: rgba(244,244,242,0.6);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .map-waiting.hidden { opacity: 0; }
+
+  .card-telemetry .card-band { background: var(--band-telemetry); }
+  .telemetry-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .telemetry-row:last-child { margin-bottom: 0; }
+  .telemetry-row .row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .telemetry-row .row-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .telemetry-row .row-value {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+  }
+  .telemetry-row .row-unit {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+  .bar-track {
+    position: relative;
+    height: 8px;
+    background: #ECEEEC;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-center {
+    position: absolute;
+    top: -2px; bottom: -2px;
+    left: 50%;
+    width: 1px;
+    background: #C8CBC9;
+  }
+  .bar-fill {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    width: 0%;
+    background: var(--bar-linear);
+    border-radius: 4px;
+    transition: width 0.12s linear, left 0.12s linear, background 0.12s linear;
+  }
+  .bar-fill.angular { background: var(--bar-angular); }
+
+  .card-control .card-band { background: var(--band-control); }
+  .card-control .card-body {
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 56px);
+    grid-template-rows: repeat(3, 56px);
+    gap: 8px;
+  }
+  .dpad-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--text-primary);
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dpad-btn:hover { background: #F6F8F6; }
+  .dpad-btn:active { transform: scale(0.96); }
+  .dpad-btn.active {
+    background: var(--accent-green-bg);
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 4px rgba(107,191,138,0.18);
+  }
+  .dpad-btn .keycap {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+  .dpad-up    { grid-column: 2; grid-row: 1; }
+  .dpad-left  { grid-column: 1; grid-row: 2; }
+  .dpad-stop  { grid-column: 2; grid-row: 2; }
+  .dpad-right { grid-column: 3; grid-row: 2; }
+  .dpad-down  { grid-column: 2; grid-row: 3; }
+  .cmd-display {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .cmd-display strong { color: var(--text-primary); }
+
+  .card-guide .card-band { background: var(--band-guide); }
+  .card-guide .card-body { padding: 0; }
+  .guide-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 14px 14px;
+    min-height: 0;
+  }
+  .guide-scroll::-webkit-scrollbar { width: 6px; }
+  .guide-scroll::-webkit-scrollbar-thumb {
+    background: #D0D4D2; border-radius: 3px;
+  }
+  .accordion-item {
+    border-bottom: 1px solid var(--border-card);
+  }
+  .accordion-item:last-child { border-bottom: none; }
+  .accordion-head {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 10px 0;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .accordion-head .glyph {
+    color: var(--accent-green);
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+  }
+  .accordion-head .arrow {
+    margin-left: auto;
+    color: var(--text-muted);
+    font-size: 11px;
+    transition: transform 0.2s ease;
+  }
+  .accordion-item.open .accordion-head .arrow {
+    transform: rotate(90deg);
+  }
+  .accordion-body {
+    display: none;
+    padding: 2px 0 12px 24px;
+    font-size: 12px;
+    color: var(--text-primary);
+    line-height: 1.65;
+  }
+  .accordion-item.open .accordion-body { display: block; }
+  .accordion-body ul { margin: 4px 0; padding-left: 16px; }
+  .accordion-body li { margin-bottom: 2px; }
+  .accordion-body code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    background: #F4F4F2;
+    border: 1px solid var(--border-card);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .accordion-body pre {
+    margin: 6px 0;
+    padding: 10px 12px;
+    background: #2A2A2C;
+    color: #E6E6E6;
+    border-radius: 6px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+
+  .footer {
+    flex: 0 0 auto;
+    height: 44px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-card);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+  }
+  .topic-chips { display: flex; gap: 8px; }
+  .topic-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-card);
+    background: #F6F8F6;
+    font-size: 11px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color: var(--text-primary);
+  }
+  .topic-chip .pulse-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #C8CBC9;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .topic-chip .pulse-dot.on {
+    background: var(--accent-green);
+    transform: scale(1.6);
+  }
+  .footer-right {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="header">
+    <div class="header-left">
+      <div class="title">TurtleBot3 Dashboard</div>
+      <div class="subtitle">Realtime SLAM Monitor</div>
+    </div>
+    <div class="header-right">
+      <div class="conn-chip disconnected" id="connChip">
+        <span class="conn-dot"></span>
+        <span id="connText">Connecting…</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="uptime" id="uptime">00:00</div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <section class="card card-map">
+      <div class="card-band">
+        <span>Map</span>
+        <span class="topic">/map</span>
+      </div>
+      <div class="card-body">
+        <div id="map"></div>
+
+        <div class="map-overlay coord-box">
+          <div><span class="label">x</span><span id="coordX">+0.000</span></div>
+          <div><span class="label">y</span><span id="coordY">+0.000</span></div>
+          <div><span class="label">θ</span><span id="coordT">+000.0°</span></div>
+        </div>
+
+        <div class="map-overlay zoom-controls">
+          <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
+          <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
+        </div>
+
+        <svg class="map-overlay compass" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="28" fill="rgba(255,255,255,0.92)" stroke="#D8DCD9" stroke-width="1"/>
+          <text x="32" y="12" text-anchor="middle" font-size="9" fill="#6E6E73" font-weight="700">N</text>
+          <text x="32" y="58" text-anchor="middle" font-size="9" fill="#6E6E73">S</text>
+          <text x="8"  y="35" text-anchor="middle" font-size="9" fill="#6E6E73">W</text>
+          <text x="56" y="35" text-anchor="middle" font-size="9" fill="#6E6E73">E</text>
+          <g id="compassArrow" transform="rotate(0 32 32)">
+            <polygon points="32,16 27,36 32,32 37,36" fill="#6BBF8A" stroke="#3E8C5C" stroke-width="0.5"/>
+          </g>
+          <circle cx="32" cy="32" r="2" fill="#1D1D1F"/>
+        </svg>
+
+        <div class="map-overlay map-waiting" id="mapWaiting">맵 토픽 대기 중…</div>
+      </div>
+    </section>
+
+    <aside class="right-col">
+
+      <section class="card card-telemetry" style="flex: 0 0 auto;">
+        <div class="card-band">
+          <span>Telemetry</span>
+          <span class="topic">/odom</span>
+        </div>
+        <div class="card-body">
+          <div class="telemetry-row">
+            <div class="row-head">
+              <span class="row-label">Linear Velocity</span>
+              <span>
+                <span class="row-value" id="linVal">+0.000</span>
+                <span class="row-unit">m/s</span>
+              </span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-center"></div>
+              <div class="bar-fill" id="linBar"></div>
+            </div>
+          </div>
+          <div class="telemetry-row">
+            <div class="row-head">
+              <span class="row-label">Angular Velocity</span>
+              <span>
+                <span class="row-value" id="angVal">+0.000</span>
+                <span class="row-unit">rad/s</span>
+              </span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-center"></div>
+              <div class="bar-fill angular" id="angBar"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card card-control" style="flex: 0 0 auto;">
+        <div class="card-band">
+          <span>Control</span>
+          <span class="topic">/cmd_vel</span>
+        </div>
+        <div class="card-body">
+          <div class="dpad">
+            <button class="dpad-btn dpad-up"    data-cmd="forward">▲<span class="keycap">W</span></button>
+            <button class="dpad-btn dpad-left"  data-cmd="left">◀<span class="keycap">A</span></button>
+            <button class="dpad-btn dpad-stop"  data-cmd="stop">■<span class="keycap">SPC</span></button>
+            <button class="dpad-btn dpad-right" data-cmd="right">▶<span class="keycap">D</span></button>
+            <button class="dpad-btn dpad-down"  data-cmd="backward">▼<span class="keycap">S</span></button>
+          </div>
+          <div class="cmd-display">cmd: <strong id="cmdDisplay">stop</strong></div>
+        </div>
+      </section>
+
+      <section class="card card-guide" style="flex: 1 1 auto;">
+        <div class="card-band">
+          <span>Quick Guide</span>
+          <span class="topic">help</span>
+        </div>
+        <div class="card-body">
+          <div class="guide-scroll">
+
+            <div class="accordion-item open">
+              <button class="accordion-head">
+                <span class="glyph">◇</span>사전 준비<span class="arrow">▸</span>
+              </button>
+              <div class="accordion-body">
+<pre>export TURTLEBOT3_MODEL=waffle_pi
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+ros2 launch turtlebot3_cartographer cartographer.launch.py
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml</pre>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-head">
+                <span class="glyph">▸</span>조작 방법<span class="arrow">▸</span>
+              </button>
+              <div class="accordion-body">
+                <ul>
+                  <li><code>W</code>/<code>S</code>: 전진/후진</li>
+                  <li><code>A</code>/<code>D</code>: 좌/우 회전</li>
+                  <li><code>Space</code>: 정지</li>
+                  <li>D-pad 버튼 클릭 / 길게 누르기 동일 동작</li>
+                  <li>키를 떼거나 버튼 밖으로 나가면 자동 정지</li>
+                  <li>탭/창 비활성화 시 안전 정지 발행</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-head">
+                <span class="glyph">⬡</span>표시 정보<span class="arrow">▸</span>
+              </button>
+              <div class="accordion-body">
+                <ul>
+                  <li>맵 색: 진한 회색=장애물, 흰색=자유 공간, 회색=미탐색</li>
+                  <li>마커: 초록 화살표가 현재 로봇 위치와 헤딩</li>
+                  <li>좌표계: 화면 Y는 ROS Y를 뒤집어 표시 (ros2djs 관례)</li>
+                  <li>θ는 도(°) 단위</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-head">
+                <span class="glyph">◉</span>문제 해결<span class="arrow">▸</span>
+              </button>
+              <div class="accordion-body">
+                <ul>
+                  <li>연결 안 됨: <code>ros2 node list | grep rosbridge</code>, <code>ss -tnlp | grep 9090</code></li>
+                  <li>맵 안 보임: <code>ros2 topic hz /map</code>, <code>ros2 topic echo /map --once</code></li>
+                  <li>조종 안 됨: <code>ros2 topic echo /cmd_vel</code></li>
+                  <li>file://로 열어 차단 시: <code>python3 -m http.server 8000</code> 후 <code>http://localhost:8000/파일명</code></li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div class="topic-chips">
+      <span class="topic-chip"><span class="pulse-dot" id="pulseMap"></span>/map</span>
+      <span class="topic-chip"><span class="pulse-dot" id="pulseOdom"></span>/odom</span>
+      <span class="topic-chip"><span class="pulse-dot" id="pulseCmd"></span>/cmd_vel</span>
+    </div>
+    <div class="footer-right">ROS 2 Humble · TurtleBot3 Waffle Pi</div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ===== 0. 상수 =====
+  const ROSBRIDGE_URL   = 'ws://localhost:9090';
+  const LINEAR_MAX      = 0.5;
+  const ANGULAR_MAX     = 1.5;
+  const LINEAR_SPEED    = 0.2;
+  const ANGULAR_SPEED   = 0.8;
+  const PULSE_THROTTLE_MS = 400;
+  const RESIZE_DEBOUNCE   = 200;
+  const RECONNECT_DELAY   = 2000;
+  const MAP_WAIT_TIMEOUT  = 3000;
+
+  // ===== 1. 헤더 시계 / 가동 시간 =====
+  const startedAt = performance.now();
+  const clockEl   = document.getElementById('clock');
+  const uptimeEl  = document.getElementById('uptime');
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function tickClock() {
+    const now = new Date();
+    clockEl.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
+    const sec = Math.floor((performance.now() - startedAt) / 1000);
+    uptimeEl.textContent = pad2(Math.floor(sec / 60)) + ':' + pad2(sec % 60);
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  // ===== 2. ROS 연결 =====
+  let ros = null;
+  let odomTopic = null, cmdTopic = null;
+
+  const connChip = document.getElementById('connChip');
+  const connText = document.getElementById('connText');
+
+  function setConnected(state) {
+    if (state) {
+      connChip.classList.remove('disconnected');
+      connText.textContent = 'Connected';
+    } else {
+      connChip.classList.add('disconnected');
+      connText.textContent = 'Disconnected';
+    }
+  }
+
+  function connect() {
+    ros = new ROSLIB.Ros({ url: ROSBRIDGE_URL });
+
+    ros.on('connection', () => {
+      setConnected(true);
+      setupTopics();
+      setupGridClient();
+    });
+    ros.on('error', () => {
+      setConnected(false);
+    });
+    ros.on('close', () => {
+      setConnected(false);
+      setTimeout(connect, RECONNECT_DELAY);
+    });
+  }
+
+  // ===== 3. 토픽 펄스 =====
+  const pulseEls = {
+    map:  document.getElementById('pulseMap'),
+    odom: document.getElementById('pulseOdom'),
+    cmd:  document.getElementById('pulseCmd'),
+  };
+  const lastPulse = { map: 0, odom: 0, cmd: 0 };
+  function pulse(key) {
+    const now = performance.now();
+    if (now - lastPulse[key] < PULSE_THROTTLE_MS) return;
+    lastPulse[key] = now;
+    const el = pulseEls[key];
+    el.classList.add('on');
+    setTimeout(() => el.classList.remove('on'), 220);
+  }
+
+  // ===== 4. 토픽 구독/발행 =====
+  // ROS2는 메시지 타입에 /msg/ 필수
+  function setupTopics() {
+    odomTopic = new ROSLIB.Topic({
+      ros: ros,
+      name: '/odom',
+      messageType: 'nav_msgs/msg/Odometry'
+    });
+    odomTopic.subscribe(handleOdom);
+
+    cmdTopic = new ROSLIB.Topic({
+      ros: ros,
+      name: '/cmd_vel',
+      messageType: 'geometry_msgs/msg/Twist'
+    });
+  }
+
+  // ===== 5. 맵 뷰어 / 마커 =====
+  let viewer = null;
+  let gridClient = null;
+  let robotMarker = null;
+  let mapReceived = false;
+  const mapWaitingEl = document.getElementById('mapWaiting');
+
+  function createViewer() {
+    const host = document.getElementById('map');
+    const rect = host.getBoundingClientRect();
+    const w = Math.max(400, Math.floor(rect.width));
+    const h = Math.max(300, Math.floor(rect.height));
+
+    viewer = new ROS2D.Viewer({
+      divID: 'map',
+      width: w,
+      height: h,
+      background: '#F4F4F2'
+    });
+  }
+
+  function setupGridClient() {
+    if (!viewer) return;
+    if (gridClient) return;
+
+    gridClient = new ROS2D.OccupancyGridClient({
+      ros: ros,
+      rootObject: viewer.scene,
+      continuous: true
+    });
+
+    gridClient.on('change', () => {
+      mapReceived = true;
+      mapWaitingEl.classList.add('hidden');
+      pulse('map');
+
+      viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
+      viewer.shift(gridClient.currentGrid.pose.position.x, gridClient.currentGrid.pose.position.y);
+
+      if (!robotMarker) {
+        // NavigationArrow는 scaleY 음수 환경에서 모양 변형 이슈가 있어
+        // EaselJS Shape으로 화살표를 직접 그린다. 단위는 미터.
+        const ARROW_LEN = 0.35;
+        const ARROW_W   = 0.22;
+
+        robotMarker = new createjs.Shape();
+        robotMarker.graphics
+          .beginFill(createjs.Graphics.getRGB(107, 191, 138, 0.95))
+          .beginStroke(createjs.Graphics.getRGB(62, 140, 92, 1.0))
+          .setStrokeStyle(0.03)
+          .moveTo( ARROW_LEN,  0)
+          .lineTo(-ARROW_LEN * 0.6,  ARROW_W)
+          .lineTo(-ARROW_LEN * 0.3,  0)
+          .lineTo(-ARROW_LEN * 0.6, -ARROW_W)
+          .closePath();
+
+        gridClient.rootObject.addChild(robotMarker);
+
+        setTimeout(() => {
+          if (!robotMarker) return;
+          console.log('[marker check]', {
+            x: robotMarker.x,
+            y: robotMarker.y,
+            scaleX: viewer.scene.scaleX,
+            scaleY: viewer.scene.scaleY,
+            gridOrigin: gridClient.currentGrid.pose.position,
+            gridW: gridClient.currentGrid.width,
+            gridH: gridClient.currentGrid.height
+          });
+        }, 5000);
+      }
+    });
+  }
+
+  setTimeout(() => {
+    if (!mapReceived) {
+      mapWaitingEl.classList.remove('hidden');
+    }
+  }, MAP_WAIT_TIMEOUT);
+
+  // ===== 6. /odom 처리: 마커 좌표 + 텔레메트리 + 컴퍼스 =====
+  const coordX = document.getElementById('coordX');
+  const coordY = document.getElementById('coordY');
+  const coordT = document.getElementById('coordT');
+  const linVal = document.getElementById('linVal');
+  const angVal = document.getElementById('angVal');
+  const linBar = document.getElementById('linBar');
+  const angBar = document.getElementById('angBar');
+  const compassArrow = document.getElementById('compassArrow');
+
+  function quatToYaw(q) {
+    return Math.atan2(2 * (q.w * q.z + q.x * q.y),
+                      1 - 2 * (q.y * q.y + q.z * q.z));
+  }
+  function fmt(n, d) {
+    return (n >= 0 ? '+' : '') + n.toFixed(d);
+  }
+
+  function handleOdom(msg) {
+    pulse('odom');
+
+    const px = msg.pose.pose.position.x;
+    const py = msg.pose.pose.position.y;
+    const yaw = quatToYaw(msg.pose.pose.orientation);
+    const yawDeg = yaw * 180 / Math.PI;
+
+    // 마커 갱신.
+    // 직접 만든 Shape은 ros2djs 내부 tick 사이클 밖이므로 scene.update()로 강제 리렌더.
+    if (robotMarker && viewer) {
+      robotMarker.x = -px;
+      robotMarker.y = -py;
+      robotMarker.rotation = -yawDeg;
+      viewer.scene.update();
+    }
+
+    // 좌표 오버레이
+    coordX.textContent = fmt(px, 3);
+    coordY.textContent = fmt(py, 3);
+    coordT.textContent = fmt(yawDeg, 1) + '°';
+
+    // 텔레메트리
+    const lin = msg.twist.twist.linear.x;
+    const ang = msg.twist.twist.angular.z;
+    linVal.textContent = fmt(lin, 3);
+    angVal.textContent = fmt(ang, 3);
+    setBar(linBar, lin, LINEAR_MAX,  false);
+    setBar(angBar, ang, ANGULAR_MAX, true);
+
+    // 컴퍼스: SVG attribute 방식 회전.
+    // CSS transform 쓰면 transform-origin이 페이지 기준이라 화살표가 화면 밖으로 튄다.
+    compassArrow.setAttribute('transform', `rotate(${-yawDeg} 32 32)`);
+  }
+
+  function setBar(el, val, max, isAngular) {
+    const pct = Math.max(-1, Math.min(1, val / max));
+    const widthPct = Math.abs(pct) * 50;
+    if (pct >= 0) {
+      el.style.left  = '50%';
+      el.style.width = widthPct + '%';
+      el.style.background = isAngular ? 'var(--bar-angular)' : 'var(--bar-linear)';
+    } else {
+      el.style.left  = (50 - widthPct) + '%';
+      el.style.width = widthPct + '%';
+      el.style.background = 'var(--bar-negative)';
+    }
+  }
+
+  // ===== 7. 조종 =====
+  const cmdDisplay = document.getElementById('cmdDisplay');
+  const dpadBtns = document.querySelectorAll('.dpad-btn');
+  let activeCmd = 'stop';
+
+  function publishTwist(linX, angZ) {
+    if (!cmdTopic) return;
+    const msg = new ROSLIB.Message({
+      linear:  { x: linX, y: 0, z: 0 },
+      angular: { x: 0,    y: 0, z: angZ }
+    });
+    cmdTopic.publish(msg);
+    pulse('cmd');
+  }
+
+  function triggerCommand(name) {
+    if (name === activeCmd) return;
+    activeCmd = name;
+
+    let lin = 0, ang = 0;
+    switch (name) {
+      case 'forward':  lin =  LINEAR_SPEED;  break;
+      case 'backward': lin = -LINEAR_SPEED;  break;
+      case 'left':     ang =  ANGULAR_SPEED; break;
+      case 'right':    ang = -ANGULAR_SPEED; break;
+      case 'stop':     lin = 0; ang = 0;     break;
+    }
+    publishTwist(lin, ang);
+
+    cmdDisplay.textContent = name;
+    dpadBtns.forEach(b => {
+      b.classList.toggle('active', b.dataset.cmd === name);
+    });
+  }
+
+  dpadBtns.forEach(btn => {
+    const cmd = btn.dataset.cmd;
+    const press = (e) => { e.preventDefault(); triggerCommand(cmd); };
+    const release = (e) => { e.preventDefault(); if (cmd !== 'stop') triggerCommand('stop'); };
+    btn.addEventListener('mousedown',  press);
+    btn.addEventListener('mouseup',    release);
+    btn.addEventListener('mouseleave', release);
+    btn.addEventListener('touchstart', press,   { passive: false });
+    btn.addEventListener('touchend',   release, { passive: false });
+    btn.addEventListener('touchcancel',release, { passive: false });
+  });
+
+  const keyMap = {
+    'KeyW': 'forward',
+    'KeyS': 'backward',
+    'KeyA': 'left',
+    'KeyD': 'right',
+    'Space': 'stop'
+  };
+  window.addEventListener('keydown', (e) => {
+    const cmd = keyMap[e.code];
+    if (!cmd) return;
+    if (e.repeat) return;
+    e.preventDefault();
+    triggerCommand(cmd);
+  });
+  window.addEventListener('keyup', (e) => {
+    const cmd = keyMap[e.code];
+    if (!cmd) return;
+    if (cmd === 'stop') return;
+    e.preventDefault();
+    triggerCommand('stop');
+  });
+
+  window.addEventListener('blur',  () => triggerCommand('stop'));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) triggerCommand('stop');
+  });
+  window.addEventListener('beforeunload', () => {
+    if (cmdTopic) publishTwist(0, 0);
+  });
+
+  // ===== 8. 줌 컨트롤 =====
+  document.getElementById('zoomIn').addEventListener('click', () => {
+    if (!viewer) return;
+    viewer.scene.scaleX *= 1.2;
+    viewer.scene.scaleY *= 1.2;
+    viewer.scene.update();
+  });
+  document.getElementById('zoomOut').addEventListener('click', () => {
+    if (!viewer) return;
+    viewer.scene.scaleX *= 1 / 1.2;
+    viewer.scene.scaleY *= 1 / 1.2;
+    viewer.scene.update();
+  });
+
+  // ===== 9. 아코디언 =====
+  document.querySelectorAll('.accordion-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.parentElement.classList.toggle('open');
+    });
+  });
+
+  // ===== 10. resize 디바운싱 =====
+  // ros2djs 0.9.0 Viewer에는 resize 메서드가 없어 캔버스 크기를 직접 갱신.
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (!viewer) return;
+      const host = document.getElementById('map');
+      const rect = host.getBoundingClientRect();
+      const w = Math.max(400, Math.floor(rect.width));
+      const h = Math.max(300, Math.floor(rect.height));
+      viewer.scene.canvas.width = w;
+      viewer.scene.canvas.height = h;
+      viewer.width = w;
+      viewer.height = h;
+      if (gridClient && gridClient.currentGrid) {
+        viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
+        viewer.shift(gridClient.currentGrid.pose.position.x, gridClient.currentGrid.pose.position.y);
+      }
+    }, RESIZE_DEBOUNCE);
+  });
+
+  // ===== 11. 부트스트랩 =====
+  window.addEventListener('load', () => {
+    requestAnimationFrame(() => {
+      createViewer();
+      connect();
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>

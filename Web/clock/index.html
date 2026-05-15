@@ -1,0 +1,28 @@
+<!-- 7-세그먼트 LCD 스타일 디지털 시계의 마크업 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="clock-card">
+        <div class="clock-row date-row">
+            <!-- 꺼진 세그먼트 잔상: 날짜의 숫자 자리에만 8을 깔고 한글은 공백으로 두어야 위치가 정렬됨 -->
+            <span class="ghost" id="dateGhost">8888년 88월 88일</span>
+            <span class="active" id="dateText"></span>
+        </div>
+        <div class="clock-row time-row">
+            <!-- 꺼진 세그먼트 잔상: 시간 자리 전체를 88:88:88로 깔아둠 -->
+            <span class="ghost" id="timeGhost">88:88:88</span>
+            <span class="active" id="timeText"></span>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

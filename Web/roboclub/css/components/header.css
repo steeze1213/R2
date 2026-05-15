@@ -1,0 +1,31 @@
+.header {
+    width: 100%;
+    height: 56px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+}
+
+.header__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--secondary);
+}
+
+.header__menu {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text-sub);
+}
+
+.header__menu-item {
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.header__menu-item:hover {
+    color: var(--primary);
+}

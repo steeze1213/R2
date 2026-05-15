@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로보클럽 채팅방</title>
+    <link rel="stylesheet" href="./css/pages/common.css">
+    <link rel="stylesheet" href="./css/components/userlist.css">
+    <link rel="stylesheet" href="./css/pages/chat.css">
+</head>
+<body>
+    <div class="container">
+        <div class="chat-screen__bar">
+            <div class="user chat-user">
+                <div class="user__column"><div class="user__pic"></div></div>
+                <div class="user__column">
+                    <p class="user__nick">수강생3</p>
+                    <p class="user__message">👤 2</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-screen__comments">
+            <div class="comment">SLAM 노드가 자꾸 죽어</div>
+            <div class="comment">에러 로그는 봤어?</div>
+            <div class="comment mine">방금 봤는데 transform이 안 잡힌대</div>
+            <div class="comment mine">odom → base_link 연결이 끊긴 것 같아</div>
+            <div class="comment">tf_static 발행은 되고 있어?</div>
+            <div class="comment mine">잠깐만 ros2 topic echo로 확인해볼게</div>
+            <div class="comment mine">아 발행이 안 되고 있네</div>
+            <div class="comment">그럼 launch 파일에서 static_transform_publisher 빠진 거 아니야?</div>
+            <div class="comment mine">맞다 그거였어</div>
+            <div class="comment mine">고마워 살았다</div>
+            <div class="comment">ㅋㅋ 다음에 커피 사</div>
+        </div>
+
+        <form class="chat-form">
+            <div class="chat-form__plugins">
+                <span class="chat-form__plugin">😊</span>
+                <span class="chat-form__plugin">📎</span>
+                <span class="chat-form__plugin">📅</span>
+            </div>
+            <textarea class="chat-form__input" placeholder="메시지를 입력하세요"></textarea>
+            <button type="button" class="chat-form__btn">전송</button>
+        </form>
+    </div>
+</body>
+</html>

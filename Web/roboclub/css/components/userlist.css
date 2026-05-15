@@ -1,0 +1,121 @@
+.user {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    position: relative;
+    cursor: pointer;
+}
+
+.user:hover {
+    background-color: var(--bg);
+}
+
+.user__column:first-child {
+    margin-right: 12px;
+}
+
+.user__pic {
+    width: 44px;
+    height: 44px;
+    background-color: var(--primary);
+    border-radius: 12px;
+    position: relative;
+}
+
+.user__pic::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 6px;
+    background-color: #FFFFFF;
+}
+
+.user__pic::after {
+    content: "";
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 14px;
+    background-color: #FFFFFF;
+    border-radius: 4px;
+    box-shadow: -5px 4px 0 -3px var(--primary), 5px 4px 0 -3px var(--primary);
+}
+
+.user__nick {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: var(--text);
+}
+
+.user__state,
+.user__message {
+    font-size: 12px;
+    color: var(--text-sub);
+}
+
+.user__time {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    font-size: 11px;
+    color: var(--text-sub);
+}
+
+.my-profile {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.my-profile .user__pic {
+    width: 52px;
+    height: 52px;
+}
+
+.my-profile .user__pic::before {
+    top: 8px;
+    width: 3px;
+    height: 7px;
+}
+
+.my-profile .user__pic::after {
+    top: 22px;
+    width: 22px;
+    height: 16px;
+    box-shadow: -6px 5px 0 -4px var(--primary), 6px 5px 0 -4px var(--primary);
+}
+
+.chat-user {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+}
+
+.chat-user .user__pic {
+    width: 40px;
+    height: 40px;
+}
+
+.chat-user .user__pic::before {
+    top: 5px;
+    width: 3px;
+    height: 5px;
+}
+
+.chat-user .user__pic::after {
+    top: 16px;
+    width: 16px;
+    height: 12px;
+    box-shadow: -4px 3px 0 -3px var(--primary), 4px 3px 0 -3px var(--primary);
+}
+
+.chat-user .user__message {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}

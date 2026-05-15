@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로보클럽 채팅</title>
+    <link rel="stylesheet" href="./css/pages/common.css">
+    <link rel="stylesheet" href="./css/components/header.css">
+    <link rel="stylesheet" href="./css/components/navbar.css">
+    <link rel="stylesheet" href="./css/components/userlist.css">
+    <link rel="stylesheet" href="./css/pages/friends.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h3 class="header__title">채팅</h3>
+            <div class="header__menu">
+                <span class="header__menu-item">🔍</span>
+                <span class="header__menu-item">＋</span>
+            </div>
+        </header>
+
+        <div class="friends">
+            <ul class="user-list">
+                <li>
+                    <a href="./chat.html" class="user">
+                        <div class="user__column"><div class="user__pic"></div></div>
+                        <div class="user__column">
+                            <p class="user__nick">수강생3</p>
+                            <p class="user__message">SLAM 노드가 자꾸 죽는데 혹시 봐줄 수 있어?</p>
+                        </div>
+                        <span class="user__time">오후 2:34</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./chat.html" class="user">
+                        <div class="user__column"><div class="user__pic"></div></div>
+                        <div class="user__column">
+                            <p class="user__nick">팀 프로젝트방</p>
+                            <p class="user__message">내일 발표자료 최종본 공유합니다</p>
+                        </div>
+                        <span class="user__time">오후 1:12</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./chat.html" class="user">
+                        <div class="user__column"><div class="user__pic"></div></div>
+                        <div class="user__column">
+                            <p class="user__nick">수강생5</p>
+                            <p class="user__message">PyQt 위젯 정렬 어떻게 했어?</p>
+                        </div>
+                        <span class="user__time">오전 11:45</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./chat.html" class="user">
+                        <div class="user__column"><div class="user__pic"></div></div>
+                        <div class="user__column">
+                            <p class="user__nick">강사님</p>
+                            <p class="user__message">금요일 코드 리뷰 일정 안내드립니다</p>
+                        </div>
+                        <span class="user__time">오전 9:20</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <nav class="navbar">
+            <ul class="navbar__list">
+                <li class="navbar__item">
+                    <a href="./friends.html" class="navbar__link">👤</a>
+                </li>
+                <li class="navbar__item">
+                    <a href="./chats.html" class="navbar__link active">💬</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</body>
+</html>

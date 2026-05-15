@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>ROS 맵 뷰어</title>
+
+<script src="https://code.createjs.com/1.0.0/easeljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/eventemitter2@6.4.9/lib/eventemitter2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ros2d@0.9.0/build/ros2d.min.js"></script>
+
+<script type="text/javascript">
+
+  function init() {
+    // 1. ROS 연결
+    var ros = new ROSLIB.Ros({
+      url: 'ws://localhost:9090'
+    });
+
+    // 2. 뷰어 생성 (지도 표시 영역)
+    var viewer = new ROS2D.Viewer({
+      divID: 'map',
+      width: 800,
+      height: 600,
+      background: '#EFEFEF'
+    });
+
+    // 3. OccupancyGrid 클라이언트 생성
+    var gridClient = new ROS2D.OccupancyGridClient({
+      ros: ros,
+      rootObject: viewer.scene,
+      continuous: true
+    });
+
+    // 4. 지도가 갱신될 때 화면 자동 조정
+    gridClient.on('change', function () {
+      viewer.scaleToDimensions(
+        gridClient.currentGrid.width,
+        gridClient.currentGrid.height
+      );
+      viewer.shift(
+        gridClient.currentGrid.pose.position.x,
+        gridClient.currentGrid.pose.position.y
+      );
+    });
+  }
+
+  // HTML 문서가 모두 로드된 뒤 init 실행
+  document.addEventListener("DOMContentLoaded", function () {
+    init();
+  });
+
+</script>
+</head>
+
+<body>
+  <h1>실시간 SLAM 지도 확인</h1>
+  <p>ROS에서 맵 토픽이 발행되어야 지도가 보입니다.</p>
+
+  <div id="map"></div>
+</body>
+</html>

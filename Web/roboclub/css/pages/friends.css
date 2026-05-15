@@ -1,0 +1,15 @@
+.friends {
+    height: calc(100% - 60px);
+    overflow-y: auto;
+}
+
+.friends__menu {
+    padding: 14px 20px 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-sub);
+}
+
+.user-list {
+    padding-bottom: 70px;
+}

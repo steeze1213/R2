@@ -40,6 +40,7 @@
 | 6 | [자율주행자동차 보조안전모듈](#6-자율주행자동차-보조안전모듈) | 팀 (3명) | 2026.02.26 ~ 03.06 |
 | 7 | [YOLOv8 비상정지 기반 TurtleBot3 자율주행](#7-yolov8-비상정지-기반-turtlebot3-자율주행) | 개인 | 2026.04.24 |
 | 8 | [공기질 연동 자율주행 공기청정 로봇](#8-공기질-연동-자율주행-공기청정-로봇) | 팀 (4명) | 2026.04.28 ~ 05.13 |
+| 9 | [웹 개발 학습 및 ROS 웹 연동 실습](#9-웹-개발-학습-및-ros-웹-연동-실습) | 개인 | 2026.05.14 ~ 05.15 |
 
 ---
 
@@ -429,6 +430,83 @@ TurtleBot3 Waffle Pi + ROS2 Humble 환경에서 미세먼지 센서(ESP01 + PMS7
 
 ---
 
+## 9. 웹 개발 학습 및 ROS 웹 연동 실습
+
+### 프로젝트 주제
+
+HTML, CSS, JavaScript 기본 문법부터 DOM/이벤트 처리, 그리고 ROS와 웹을 연동하는 roslibjs/ros2djs 라이브러리 활용까지 단계별로 학습한 개인 실습. 단순 정적 페이지(인물 소개)에서 시작해 SPA형 채팅 UI 클론, JS 기반 동적 웹 앱(디지털 시계/TODO), 마지막으로 웹 브라우저에서 ROS 토픽을 구독/발행해 turtlesim을 조종하고 실시간 SLAM 지도를 렌더링하는 ROS 웹 클라이언트 구현까지 진행했다.
+
+기존 PyQt5 기반 데스크탑 GUI에서만 다뤘던 로봇 제어,모니터링 인터페이스를, **rosbridge_server 기반 WebSocket으로 분리**해 OS,설치 환경에 종속되지 않는 웹 클라이언트로 재구성한 것이 의미 있는 지점이다.
+
+### 팀 구성 및 본인 역할
+
+**개인 실습** / 전체 단독 수행
+- HTML 주요 태그 조사 및 인물 소개 페이지 구현
+- CSS Flexbox/Grid 기반 로그인,친구목록,채팅 페이지 클론 구현
+- Vanilla JavaScript로 디지털 시계, TODO 리스트 웹 앱 구현
+- roslibjs 기반 turtlesim 웹 컨트롤러 구현 (HUD 스타일 UI 디자인 포함)
+- ros2djs 기반 실시간 SLAM 맵 뷰어 및 대시보드 확장 구현
+
+### 시스템 구성
+
+| 구성요소 | 역할 |
+|---------|------|
+| html_tag.html | HTML 기본 태그(h, p, ul, img, blockquote 등) 학습용 인물 소개 페이지 |
+| roboclub/ | CSS 속성 학습용 카카오톡 스타일 멀티 페이지 클론(로그인/친구목록/채팅) |
+| clock/ | JS Date 객체 + setInterval 기반 7-세그먼트 스타일 디지털 시계 |
+| todo/ | JS DOM 조작 + 이벤트 핸들링 기반 TODO 추가/삭제 웹 앱 |
+| web_robot/ | roslibjs로 rosbridge에 연결, /turtle1/cmd_vel 발행해 turtlesim 원격 조종 |
+| web_robot2/ | ros2djs OccupancyGridClient로 /map 토픽 구독, 실시간 SLAM 지도 시각화 |
+
+### 기능적 요소
+
+**HTML / CSS 기초**
+- 자주 사용되는 HTML 태그 20종 조사 후 인물 소개 페이지 구성
+- CSS 속성 30종 조사 및 카카오톡 클론(로그인 → 친구목록 → 1:1 채팅) 멀티 페이지 구현
+- 컴포넌트(header/navbar/userlist) 단위 CSS 분리
+
+**JavaScript 동적 웹 앱**
+- 디지털 시계: 1초 간격 setInterval, 꺼진 세그먼트 잔상(ghost) 표현으로 LCD 느낌 재현
+- TODO 리스트: 추가/삭제 이벤트, 빈 상태(empty) 표시 토글
+
+**ROS 웹 연동**
+- rosbridge_websocket(9090 포트)에 ws:// 연결 후 연결 상태 LED 표시
+- 5방향(상하좌우+STOP) 버튼으로 geometry_msgs/Twist 발행
+- OccupancyGridClient로 /map 토픽 자동 구독 및 EaselJS 캔버스에 실시간 렌더링
+- 맵 갱신 시 viewer scale/shift 자동 조정으로 전체 맵이 화면에 맞도록 처리
+
+### 활용 기술 및 도구
+
+| 구분 | 내용 |
+|------|------|
+| **마크업/스타일** | HTML5, CSS3 (Flexbox, Grid, 커스텀 폰트 Orbitron/JetBrains Mono) |
+| **스크립트** | Vanilla JavaScript (ES6+), DOM API, setInterval, addEventListener |
+| **ROS 웹 라이브러리** | roslibjs, ros2djs, EaselJS, EventEmitter2 |
+| **ROS** | ROS2 Humble, rosbridge_server, turtlesim, turtlebot3_cartographer |
+| **개발 도구** | VS Code, Chrome DevTools, CDN(jsDelivr) |
+
+### 프로젝트 주요 성과
+
+- ROS-Web 간 양방향 통신 파이프라인을 rosbridge WebSocket으로 단순화하여 PyQt 의존 없이 브라우저만으로 로봇 제어 가능
+- 컨트롤러 UI를 단순 버튼에서 HUD 스타일(코너 프레임 + 상태 LED)로 재디자인하여 가독성 개선
+- CSS를 페이지별/컴포넌트별로 분리해 카카오톡 클론의 유지보수성 확보
+- 디지털 시계의 ghost 세그먼트 처리로 실제 LCD 디스플레이의 시각적 특성을 재현
+
+### 힘들었던 점 및 아쉬웠던 점
+
+- ros2djs의 좌표계와 캔버스 좌표계 간 Y축 반전 이슈로 로봇 마커 위치가 어긋나는 문제 발생
+- rosbridge_server가 실행되지 않은 상태에서 연결 실패 처리(재시도 로직 부재) 미흡
+- CSS 작업 시 컴포넌트 경계가 페이지별 스타일과 일부 겹쳐 우선순위 충돌 발생
+
+### 기술적 개선 가능성
+
+- 디지털 시계,TODO에 LocalStorage 연동해 새로고침 후에도 상태 보존
+- ROS 웹 컨트롤러에 키보드 입력(WASD) 핸들링 추가
+- 맵 뷰어에 로봇 마커(/odom 구독)와 목표점 클릭 발행(/goal_pose) 기능 통합
+- TypeScript + 빌드 도구(Vite) 도입으로 코드 품질,개발 경험 개선
+
+---
+
 ## 기술 블로그
 
 학습 과정 및 실습 내용은 티스토리에 정리되어 있습니다. 개인 아이디어 없이 수업 마무리 형태로 진행된 개인 과제는 블로그에서 확인할 수 있으며, 이 레포지토리에는 포함하지 않았습니다.
@@ -455,6 +533,13 @@ R2/
 │   └── Arduino+UDP/
 ├── EmergencyStopNav/
 │   └── (링크: github.com/steeze1213/emergency_stop_nav)
-└── TBPJ/
-    └── (링크: github.com/steeze1213/TBPJ)
+├── TBPJ/
+│   └── (링크: github.com/steeze1213/TBPJ)
+└── Web/
+    ├── html_tag.html
+    ├── clock/
+    ├── todo/
+    ├── roboclub/
+    ├── web_robot/
+    └── web_robot2/
 ```

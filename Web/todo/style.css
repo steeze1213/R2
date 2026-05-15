@@ -1,0 +1,194 @@
+/* 다크 코드 에디터 톤의 톤 차분한 Todo UI 스타일 */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0a0e1a;
+  --panel: #151b2e;
+  --border: #222a3d;
+  --text: #e4e7ec;
+  --text-sub: #8b95a7;
+  --accent: #00d4ff;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html, body {
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+/* 배경 도트 패턴은 시각적 노이즈를 최소화하기 위해 opacity 0.04로 매우 옅게 */
+body {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 18px 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 80px 16px 40px;
+}
+
+.card {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px;
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.list:empty {
+  display: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: border-color 150ms ease;
+}
+
+.item:hover {
+  border-color: var(--accent);
+}
+
+.item-text {
+  flex: 1;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.delete-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-sub);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.delete-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.delete-btn:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.empty {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-sub);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.empty.hidden {
+  display: none;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  transition: border-color 150ms ease;
+}
+
+.input::placeholder {
+  color: var(--text-sub);
+  font-family: var(--font-mono);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.add-btn {
+  flex-shrink: 0;
+  padding: 0 18px;
+  background-color: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.add-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.add-btn:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (max-width: 420px) {
+  body {
+    padding: 40px 12px 24px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .add-btn {
+    padding: 0 14px;
+  }
+}
