@@ -600,13 +600,6 @@ HTML, CSS, JavaScript 기본 문법부터 DOM/이벤트 처리, 그리고 ROS와
 
 > **소스코드**: [github.com/steeze1213/PACK](https://github.com/steeze1213/PACK)
 
-
-<!-- ===== ③ 프로젝트 구조 추가 (구조 트리의 Web/ 위 또는 아래에 삽입) ===== -->
-<!--
-├── PACK/
-│   └── (링크: github.com/steeze1213/PACK)
--->
-
 ---
 
 ## 기술 블로그
@@ -645,4 +638,6 @@ R2/
     ├── web_robot/
     ├── web_robot2/
     └── flask_web_app/
+├── PACK/
+│   └── (링크: github.com/steeze1213/PACK)
 ```
